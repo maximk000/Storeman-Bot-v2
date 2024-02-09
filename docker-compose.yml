@@ -5,16 +5,10 @@ services:
     build: .
     image: ghcr.io/tkaixiang/storeman-bot:latest
     restart: unless-stopped
-    depends_on: 
-      - mongo
-    environment:
-      MONGODB_URI: mongodb://mongo:27017/
-    ports: 
-      - "80:80"
+    network_mode: "host" 
     secrets:
       - source: dotenv
         target: /app/.env
-
   mongo:
     image: mongo:latest
     volumes:
