@@ -3,9 +3,10 @@ version: '3.8'
 services:
   bot:
     build: .
-    image: ghcr.io/tkaixiang/storeman-bot:latest
+    image: storeman-bot:local
     restart: unless-stopped
-    network_mode: "host" 
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/storeman
     secrets:
       - source: dotenv
         target: /app/.env

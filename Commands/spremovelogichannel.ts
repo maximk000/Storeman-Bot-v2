@@ -3,73 +3,58 @@ import { getCollections } from '../mongoDB';
 import checkPermissions from "../Utils/checkPermissions";
 
 const spremovelogichannel = async (interaction: ChatInputCommandInteraction, client: Client): Promise<boolean> => {
-    const collections = process.env.STOCKPILER_MULTI_SERVER === "true" ? getCollections(interaction.guildId) : getCollections()
-    const configDoc = (await collections.config.findOne({}))!
+    // Assume we get the channel ID from the interaction options
+    const channel = interaction.options.getChannel("channel");
 
-    if (!(await checkPermissions(interaction, "admin", interaction.member as GuildMember))) return false
-
-    
-    if ("channelId" in configDoc) {
-        const channelObj = client.channels.cache.get(configDoc.channelId) as TextChannel
-        try {
-            const msg = await channelObj.messages.fetch(configDoc.stockpileHeader)
-            await msg.delete()
-        }
-        catch (e) {
-            console.log("Failed to delete stockpileHeader")
-        }
-        try {
-            const msg = await channelObj.messages.fetch(configDoc.stockpileMsgsHeader)
-            await msg.delete()
-        }
-        catch (e) {
-            console.log("Failed to delete stockpileHeader")
-        }
-        for (let i = 0; i < configDoc.stockpileMsgs.length; i++) {
-            try {
-                const msg = await channelObj.messages.fetch(configDoc.stockpileMsgs[i])
-
-                await msg.delete()
-            }
-            catch (e) {
-                console.log("Failed to delete msg")
-            }
-        }
-        for (let i = 0; i < configDoc.targetMsg.length; i++) {
-            try {
-                const msg = await channelObj.messages.fetch(configDoc.targetMsg[i])
-                await msg.delete()
-            }
-            catch (e) {
-                console.log("Failed to delete a targetMsg")
-            }
-        }
-        try {
-            const refreshAllID = await channelObj.messages.fetch(configDoc.refreshAllID)
-            if (refreshAllID) await refreshAllID.delete()
-        }
-        catch (e) {
-            console.log("Failed to delete refreshAll msg")
-        }
-       
-
-        await collections.config.updateOne({}, { $unset: { channelId: 0, stockpileHeader: 0, stockpileMsgs: 0, targetMsg: 0, stockpileMsgsHeader: 0, refreshAllID: 0 } })
-
+    if (!channel) {
         await interaction.editReply({
-            content: "Logi channel was successfully deleted",
+            content: "You must specify a channel to remove."
         });
-    }
-    else {
-        await interaction.editReply({
-            content: "Logi channel was not set. Unable to remove."
-        });
+        return false;
     }
 
+    const collections = process.env.STOCKPILER_MULTI_SERVER === "true" ? getCollections(interaction.guildId) : getCollections();
+    const configDoc = (await collections.config.findOne({}))!;
 
+    if (!(await checkPermissions(interaction, "admin", interaction.member as GuildMember))) return false;
 
+    // Check if the specified channel is configured
+    if (configDoc.channels && configDoc.channels[channel.id]) {
+        const channelConfig = configDoc.channels[channel.id];
+        const channelObj = client.channels.cache.get(channel.id) as TextChannel;
 
+        // Delete messages based on the stored IDs in the channel's config
+        const messageIds = [
+            channelConfig.stockpileHeader,
+            channelConfig.stockpileMsgsHeader,
+            ...channelConfig.stockpileMsgs,
+            ...channelConfig.targetMsg,
+            channelConfig.refreshAllID,
+        ];
+
+        for (const messageId of messageIds) {
+            try {
+                const msg = await channelObj.messages.fetch(messageId);
+                await msg.delete();
+                console.log(`Message ${messageId} deleted successfully.`);
+            } catch (e) {
+                console.log(`Failed to delete message ${messageId}:`, e);
+            }
+        }
+
+        // Remove the channel's configuration from the database
+        await collections.config.updateOne({}, { $unset: { [`channels.${channel.id}`]: "" } });
+
+        await interaction.editReply({
+            content: `Logi channel ${channel.name} was successfully removed.`,
+        });
+    } else {
+        await interaction.editReply({
+            content: "Specified logi channel is not configured or does not exist.",
+        });
+    }
 
     return true;
-}
+};
 
-export default spremovelogichannel
+export default spremovelogichannel;

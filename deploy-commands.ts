@@ -80,18 +80,19 @@ const commands = [
                 .setName("purge")
                 .setDescription("Deletes all stockpiles and all their information. This is a destructive and irresvesible action")
         ),
-    new SlashCommandBuilder().setName('splogichannel')
+        new SlashCommandBuilder().setName('splogichannel')
         .setDescription('Logi channel settings to broadcast the stockpile status.')
         .addSubcommand(subcommand =>
             subcommand
-                .setName("set")
-                .setDescription("Sets the target <channel> that the logi message will be in")
-                .addChannelOption(option => option.setName("channel").setDescription("The channel the message will be in").setRequired(true))
+                .setName("add")
+                .setDescription("Adds a target channel to the logi channel list")
+                .addChannelOption(option => option.setName("channel").setDescription("The channel to add to the list").setRequired(true))
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName("remove")
-                .setDescription("Removes logi message from the set channel.")
+                .setDescription("Removes a target channel from the logi channel list")
+                .addChannelOption(option => option.setName("channel").setDescription("The channel to remove from the list").setRequired(true))
         ),
     new SlashCommandBuilder().setName('sprole')
         .setDescription('Permission settings for roles')

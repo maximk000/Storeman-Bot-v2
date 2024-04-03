@@ -56,12 +56,12 @@ const sphelp = async (interaction: ChatInputCommandInteraction): Promise<boolean
             value: "Sets the password used to update information to the HTTP endpoint from the Stockpiler app."
         },
         {
-            name: "/splogichannel set <channel>  👨‍⚖️",
-            value: "Sets a logi channel in which stockpile information would always be displayed and updated on."
+            name: "/splogichannel add <channel>  👨‍⚖️",
+            value: "Adds a channel to the list of logi channels."
         },
         {
             name: "/splogichannel remove  👨‍⚖️",
-            value: "Removes a logi channel in which stockpile information would always be displayed and updated on."
+            value: "Removes a logi channel from the list of logi channels."
         },
         {
             name: "/sprole add <perms> <role>  👨‍⚖️",

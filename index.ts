@@ -7,7 +7,7 @@ import spstatus from "./Commands/spstatus";
 import spsettarget from "./Commands/spsettarget";
 import spremovetarget from "./Commands/spremovetarget";
 import spsetpassword from "./Commands/spsetpassword";
-import spsetlogichannel from "./Commands/spsetlogichannel";
+import spaddlogichannel from "./Commands/spaddlogichannel";
 import spremovelogichannel from "./Commands/spremovelogichannel";
 import NodeCache from "node-cache";
 import spremovestockpile from "./Commands/spremovestockpile";
@@ -77,7 +77,7 @@ const commandMapping: any = {
   splogichannel: {
     sub: true,
     handler: {
-      set: { func: spsetlogichannel, vars: 2 },
+      add: { func: spaddlogichannel, vars: 2 },
       remove: { func: spremovelogichannel, vars: 2 },
     },
   },
@@ -108,7 +108,8 @@ const timerBP = [60 * 5, 60 * 10, 60 * 30, 60 * 60, 60 * 60 * 6, 60 * 60 * 12]; 
 declare global {
   var NodeCacheObj: NodeCache;
 }
-
+// By putting this here we ensure commands are initalized every time the bot is launched. Should be removed on final build
+insertCommands();
 const updateFirstTimeSetup = async (newInstance: boolean): Promise<void> => {
   // Run first-time setup
   const collections = getCollections();

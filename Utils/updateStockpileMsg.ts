@@ -112,8 +112,6 @@ const deleteTargetMsg = async (channelObj: TextChannel, currentMsgID: string) =>
     }
 }
 
-
-
 const updateStockpileMsg = async (client: Client, guildID: string | null, msg: [string, Array<string>, Array<string>, string, ActionRowBuilder<ButtonBuilder>]): Promise<Boolean> => {
     let channelObj = null
     try {
